@@ -9,16 +9,15 @@ const api2 = create({
   headers: { Accept: 'application/vnd.github.v3+json' },
 });
 
-export const getCityName = () => async(dispatch) => {
+export const getCityName = (latitude, longitude) => async(dispatch) => {
     try {
          const res = await api2.get(
-            `reverse?lat=26.85&lon=80.9167&limit=1&appid=1f00cccbdf22d59d0a08748a65ec6a2e`,
+            `reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=1f00cccbdf22d59d0a08748a65ec6a2e`,
             );
             dispatch({
               type: GET_CITY_NAME,
               payload: res.data,
             });
-            console.log("city name ====",res.data);
         } catch (error) {
             dispatch({
               type: GET_CITY_NAME_FAILED,
@@ -31,18 +30,16 @@ const api = create({
   headers: { Accept: 'application/vnd.github.v3+json' },
 });
 
-export const getWeatherData = () => async (dispatch) => {
+export const getWeatherData = (latitude, longitude) => async (dispatch) => {
   try {
     const res = await api.get(
     //   `onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&appid=1f00cccbdf22d59d0a08748a65ec6a2e`,
-      `onecall?lat=26.85&lon=80.9167&exclude=minutely,hourly&appid=1f00cccbdf22d59d0a08748a65ec6a2e&units=metric`,
+      `onecall?lat=${latitude}&lon=${longitude}&exclude=minutely,hourly&appid=1f00cccbdf22d59d0a08748a65ec6a2e&units=metric`,
     );
     dispatch({
       type: GET_WEATHER_DATA,
       payload: res.data,
     });
-    console.log(res.data);
-    // getCityName();
   } catch (err) {
     dispatch({
       type: GET_WEATHER_DATA_FAILED,

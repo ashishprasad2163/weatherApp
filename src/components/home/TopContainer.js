@@ -9,7 +9,7 @@ const InfoView = (props) => {
         <View style={styles.container}>
             <View style={styles.headerView}>
                 <Text style={styles.headerText}>
-                     {props.temp}
+                     {props.temp}°C
                 </Text>
             </View>
             <View style={styles.footerView}>

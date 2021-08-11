@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type {Node} from 'react';
 import {
   SafeAreaView,
@@ -16,6 +16,7 @@ import {
   Text,
   useColorScheme,
   View,
+  PermissionsAndroid,
 } from 'react-native';
 
 import {
@@ -29,6 +30,8 @@ import Home from './src/components/home/index';
 import {Provider} from 'react-redux';
 import store from './src/store';
 import { getWeatherData } from './src/actions/weatherApi';
+import Geocoder from 'react-native-geocoding';
+import Geolocation from 'react-native-geolocation-service';
 
 const Section = ({children, title}): Node => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -58,18 +61,63 @@ const Section = ({children, title}): Node => {
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+  const requestLocationPermission = async () => {
+    try {
+    const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION &&
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+        title: 'Location Permission',
+        message:
+            'App wants to know your location ' +
+            'so you can complete your profile.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+        },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the location');
+        setHasLocationPermission(true);
+    } else {
+        console.log('Location permission denied');
+        setHasLocationPermission(false);
+    }
+    } catch (err) {
+        console.warn(err);
+    }
+  };
+
   useEffect(() => {
-    store.dispatch(getWeatherData());
+    requestLocationPermission();
+      if (hasLocationPermission) {
+          Geolocation.getCurrentPosition(
+          (position) => {
+          console.log(position);
+          setLongitude(position.coords.longitude);
+          setLatitude(position.coords.latitude);
+          },
+          (error) => {
+          // See error code charts below.
+          console.log(error.code, error.message);
+          },
+          {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+          );
+      };
   });
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <Provider store={store}>
-        <Home/>
+        <Home latitude={latitude} longitude={longitude}/>
       </Provider>
     </SafeAreaView>
   );
