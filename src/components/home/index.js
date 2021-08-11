@@ -6,8 +6,8 @@ import {connect} from 'react-redux';
 import { getWeatherData, getCityName } from '../../actions/weatherApi';
 import PropTypes from 'prop-types';
 import store from '../../store';
-import Geocoder from 'react-native-geocoding';
-import Geolocation from 'react-native-geolocation-service';
+import LottieView from 'lottie-react-native';
+
 let temp;
 let name;
 let tempArr;
@@ -33,11 +33,7 @@ const Home = ({latitude,longitude , data:{ wdata, loading, cityName }}) => {
     return (
         <SafeAreaView>
             {loading === true ? (
-                <View>
-                    <Text>
-                        Loading
-                    </Text>
-                </View>
+                <LottieView style={{flex:1}} source={require('../../assets/226-splashy-loader.json')} autoPlay loop />
             ) : loading === false && temp ? (
                 <View>
                     <TopContainer 
@@ -48,13 +44,14 @@ const Home = ({latitude,longitude , data:{ wdata, loading, cityName }}) => {
                     <BottomContainer tempArr={tempArr}/>
                 </View>
             ) : (
-                <View>
+                <View style={{height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                     <Text>
-                        Something wrong.
+                        Something Went Wrong at our end.
                     </Text>
                     <Button
-                        title='retry'
+                        title='RETRY'
                         onPress={handleRetry}
+                        style={{ width: '25%'}}
                     />
                 </View>
             )}
